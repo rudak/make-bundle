@@ -55,10 +55,8 @@ final class MakeBundle extends AbstractMaker
     {
         $bundleName = trim($input->getArgument('name'));
 
-        if (!$this->checkBundleName($bundleName)) {
-            $io->error(sprintf("Le bundle nommé %s n'est pas conforme.", $bundleName));
-            die;
-        }
+        $this->checkBundleSuffix($bundleName, $io);
+        $this->checkFirstChar($bundleName, $io);
 
         $currentDir = __DIR__ . '../../Bundles/' . $bundleName . '/';
 
@@ -77,33 +75,20 @@ final class MakeBundle extends AbstractMaker
     }
 
 
-    /**
-     * Verifie si le nom du bordel est conforme
-     * @param $bundleName
-     * @return bool
-     */
-    private function checkBundleName($bundleName): bool
+    public function checkBundleSuffix($bundleName, ConsoleStyle $io)
     {
-        $error = 0;
-
         if ('Bundle' != substr($bundleName, -6)) {
-            $error++;
+            $io->error(sprintf("Le bundle nommé %s n'est pas conforme.\nIl doit finir par 'Bundle'.", $bundleName));
+            die;
         }
-        if (!$this->startsWithUppercaseChar($bundleName)) {
-            $error++;
-        }
-
-        return $error == 0;
     }
 
-    /**
-     * On check si ca commence par une majuscule
-     * @param $string
-     * @return bool
-     */
-    private function startsWithUppercaseChar($string)
+    public function checkFirstChar($bundleName, ConsoleStyle $io)
     {
-        $chr = mb_substr($string, 0, 1, "UTF-8");
-        return mb_strtolower($chr, "UTF-8") != $chr;
+        $firstChar = mb_substr($bundleName, 0, 1, "UTF-8");
+        if (mb_strtolower($firstChar, "UTF-8") == $firstChar) {
+            $io->error(sprintf("Le bundle nommé '%s' n'est pas conforme.\nIl doit commencer par une majuscule. Exemple : '%s'.", $bundleName, ucfirst($bundleName)));
+            die;
+        }
     }
 }
